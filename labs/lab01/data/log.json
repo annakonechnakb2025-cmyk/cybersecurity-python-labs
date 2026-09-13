@@ -1,0 +1,50 @@
+[
+  {
+    "event": "login",
+    "user": "user01",
+    "result": "success",
+    "timestamp": "2026-09-12 13:53:28",
+    "args": [],
+    "kwargs": {}
+  },
+  {
+    "event": "login",
+    "user": "user01",
+    "result": "failure",
+    "timestamp": "2026-09-12 13:53:28",
+    "args": [],
+    "kwargs": {}
+  },
+  {
+    "event": "login",
+    "user": "unknown",
+    "result": "failure",
+    "timestamp": "2026-09-12 13:53:28",
+    "args": [],
+    "kwargs": {}
+  },
+  {
+    "event": "login",
+    "user": "user01",
+    "result": "success",
+    "timestamp": "2026-09-13 13:22:35",
+    "args": [],
+    "kwargs": {}
+  },
+  {
+    "event": "login",
+    "user": "user01",
+    "result": "failure",
+    "timestamp": "2026-09-13 13:22:35",
+    "args": [],
+    "kwargs": {}
+  },
+  {
+    "event": "login",
+    "user": "unknown",
+    "result": "failure",
+    "timestamp": "2026-09-13 13:22:35",
+    "args": [],
+    "kwargs": {}
+  }
+]
