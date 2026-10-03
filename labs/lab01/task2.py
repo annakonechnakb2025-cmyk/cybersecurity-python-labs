@@ -43,7 +43,7 @@ resources = [
     ("public_models", 1),
 ]
 security_levels = ("Open Source", "Internal Research", "Proprietary", "Trade Secret")
-blocked_users = {"training_bot", "model_theft", "data_poisoning_acc"}
+blocked_users = {"model_theft", "data_poisoning_acc"}
 
 
 def check(username, security_level):
@@ -66,16 +66,18 @@ def check(username, security_level):
 
 print("-" * 45)
 
-for resource_name, security_level in resources:
-    security_name = security_levels[security_level - 1]
-    print(f"{resource_name}: {security_name}")
 
-print("-" * 45)
-
-for username in users:
+def run():
     for resource_name, security_level in resources:
-        result = check(
-            username,
-            security_level,
-        )
-        print(f"user = {username} | resource = {resource_name} -> {result}")
+        security_name = security_levels[security_level - 1]
+        print(f"{resource_name}: {security_name}")
+
+    print("-" * 45)
+    print(f"{'user':>15} {'resource':>25} {'result':>30}")
+    for username in users:
+        for resource_name, security_level in resources:
+            result = check(
+                username,
+                security_level,
+            )
+            print(f"{username:>20} {resource_name:>20} {result:>30}")

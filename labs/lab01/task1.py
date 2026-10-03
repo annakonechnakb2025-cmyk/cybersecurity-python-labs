@@ -1,10 +1,10 @@
-import sys
 import os
 import random
+import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
-from shared.student import STUDENT_NAME, GROUP_NAME, VARIANT_NUMBER
+from shared.student import GROUP_NAME, STUDENT_NAME, VARIANT_NUMBER
 
 passwords = [
     "Compli4nc3@Check",
@@ -57,15 +57,15 @@ def analyze_password(password):
     return "Слабкий"
 
 
-print(f"Студент: {STUDENT_NAME}")
-print(f"Група: {GROUP_NAME}")
-print(f"Варіант: {VARIANT_NUMBER}")
-print()
+def run():
+    print(f"Студент: {STUDENT_NAME}")
+    print(f"Група: {GROUP_NAME}")
+    print(f"Варіант: {VARIANT_NUMBER}")
+    print()
 
-print("-" * 45)
-print(f"{'№':<4} {'Пароль':<25} {'Результат':<15}")
-print("-" * 45)
-
-for number, password in enumerate(passwords, start=1):
-    result = analyze_password(password)
-    print(f"{number:<4} {password:<25} {result:<15}")
+    print("-" * 45)
+    print(f"{'№':<4} {'Пароль':<25} {'Результат':<15}")
+    print("-" * 45)
+    for number, password in enumerate(passwords, start=1):
+        result = analyze_password(password)
+        print(f"{number:<4} {password:<25} {result:<15}")

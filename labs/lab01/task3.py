@@ -2,9 +2,9 @@ import csv
 import hashlib
 import json
 import os
-from datetime import datetime
-from functools import wraps #для декоратора
 import sys
+from datetime import datetime, timezone
+from functools import wraps
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
@@ -44,16 +44,16 @@ def generate_hash(password: str, salt: str = "00000") -> str:
 
 
 users_to_register = (
-    ("user01", "SecurePassword01!"),
-    ("user02", "SecurePassword02!"),
-    ("user03", "SecurePassword03!"),
-    ("user04", "SecurePassword04!"),
-    ("user05", "SecurePassword05!"),
-    ("user06", "SecurePassword06!"),
-    ("user07", "SecurePassword07!"),
-    ("user08", "SecurePassword08!"),
-    ("user09", "SecurePassword09!"),
-    ("user10", "SecurePassword10!"),
+    ("user1", "JBSjdsm2334dgfbn5"),
+    ("user2", "KDjdnfbvhk3sjsuwuwuwu"),
+    ("user3", "Dcfldhgsgw7ww7fhdhshs"),
+    ("user4", "nmsxnDNYYbnsnx3665"),
+    ("user5", "Mbsvsgsgtsyyeuue8899"),
+    ("user6", "xcvbsnmowi9u938kslknw73yhu"),
+    ("user7", "smmdnk2893hdjkslswi3"),
+    ("user8", "mDNdjn9eouee8e30wujsms"),
+    ("user9", "Dsmsbdbsjhuy2uwudh737"),
+    ("user10", "NDbndhgi377372bddhiddh"),
 )
 
 
@@ -84,7 +84,7 @@ def create_users(users_list):
     except PermissionError as error:
         print(f"Permission denied: {error}")
 
-    except IOError as error:
+    except OSError as error:
         print(f"I/O error: {error}")
 
     except ValidationError as error:
@@ -105,9 +105,8 @@ def read_users():
             encoding="utf-8",
         ) as file:
             reader = csv.reader(file)
-
-            for row in reader:
-                users_db.append(tuple(row))
+            # Виправлено PERF402: використання list() замість циклу append
+            users_db = list(reader)
 
     except FileNotFoundError as error:
         print(f"File not found: {error}")
@@ -115,7 +114,7 @@ def read_users():
     except PermissionError as error:
         print(f"Permission denied: {error}")
 
-    except IOError as error:
+    except OSError as error:
         print(f"I/O error: {error}")
 
     return users_db
@@ -126,68 +125,65 @@ def log_event(function):
     def wrapper(username, password):
         result = "failure"
 
+        # Виправлено TRY203: прибрано зайвий try...except, який просто робив raise
+        success = function(username, password)
+
+        if success:
+            result = "success"
+
+        # Виправлено DTZ005: додано таймзону UTC у datetime.now()
+        event = {
+            "event": "login",
+            "user": username,
+            "result": result,
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+            "args": [],
+            "kwargs": {},
+        }
+
         try:
-            success = function(username, password)
+            os.makedirs(DATA, exist_ok=True)
 
-            if success:
-                result = "success"
+            events = []
 
-            return success
-
-        except (ValueError, ValidationError):
-            raise
-
-        finally:
-            event = {
-                "event": "login",
-                "user": username,
-                "result": result,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "args": [],
-                "kwargs": {},
-            }
-
-            try:
-                os.makedirs(DATA, exist_ok=True)
-
-                events = []
-
-                if os.path.exists(LOG_FILE):
-                    with open(
-                        LOG_FILE,
-                        "r",
-                        encoding="utf-8",
-                    ) as file:
-                        content = file.read().strip()
-
-                        if content:
-                            events = json.loads(content)
-
-                events.append(event)
-
+            if os.path.exists(LOG_FILE):
                 with open(
                     LOG_FILE,
-                    "w",
+                    "r",
                     encoding="utf-8",
                 ) as file:
-                    json.dump(
-                        events,
-                        file,
-                        indent=2,
-                        ensure_ascii=False,
-                    )
+                    content = file.read().strip()
 
-            except FileNotFoundError as error:
-                print(f"File not found: {error}")
+                    if content:
+                        events = json.loads(content)
 
-            except PermissionError as error:
-                print(f"Permission denied: {error}")
+            events.append(event)
 
-            except IOError as error:
-                print(f"I/O error: {error}")
+            with open(
+                LOG_FILE,
+                "w",
+                encoding="utf-8",
+            ) as file:
+                json.dump(
+                    events,
+                    file,
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
-            except ValueError as error:
-                print(f"JSON error: {error}")
+        except FileNotFoundError as error:
+            print(f"File not found: {error}")
+
+        except PermissionError as error:
+            print(f"Permission denied: {error}")
+
+        except OSError as error:
+            print(f"I/O error: {error}")
+
+        except ValueError as error:
+            print(f"JSON error: {error}")
+
+        return success
 
     return wrapper
 
@@ -223,7 +219,7 @@ def login(username: str, password: str) -> bool:
         print(f"Permission denied: {error}")
         return False
 
-    except IOError as error:
+    except OSError as error:
         print(f"I/O error: {error}")
         return False
 
@@ -231,28 +227,27 @@ def login(username: str, password: str) -> bool:
         print(f"Validation error: {error}")
         return False
 
-    except ValueError as error:
-        print(f"Value error: {error}")
-        raise
+    except ValueError:
+        return False
 
 
 def print_users(users):
-    print("-" * 75)
+    print("-" * 40)
     print(f"{'Username':<15} {'Password hash'}")
-    print("-" * 75)
+    print("-" * 40)
 
     for username, password_hash in users:
         print(f"{username:<15} {password_hash}")
 
-    print("-" * 75)
+    print("-" * 40)
 
 
-def main():
+def run():
     global users_db
 
     try:
         print(f"Variant: {VARIANT_NUMBER}")
-        print(f"Hash algorithm: {HASH}")
+        print(f"Hash: {HASH}")
         print(f"Minimum password length: {MIN_PASSWORD_LENGTH}")
         print(f"Personal salt: {SALT}")
         print()
@@ -268,22 +263,22 @@ def main():
         print("Authentication:")
 
         result = login(
-            "user01",
-            "SecurePassword01!",
+            "user1",
+            "JBSjdsm2334dgfbn5",
         )
-        print(f"user01 -> {result}")
+        print(f"user1 -> {result}")
 
         result = login(
-            "user01",
-            "WrongPassword123!",
+            "user1",
+            "",
         )
-        print(f"user01 with wrong password -> {result}")
+        print(f"user1 -> {result}")
 
         result = login(
-            "unknown",
-            "SecurePassword01!",
+            "cat1",
+            "bBhhnmem494949",
         )
-        print(f"unknown -> {result}")
+        print(f"cat1 -> {result}")
 
     except FileNotFoundError as error:
         print(f"File not found: {error}")
@@ -291,7 +286,7 @@ def main():
     except PermissionError as error:
         print(f"Permission denied: {error}")
 
-    except IOError as error:
+    except OSError as error:
         print(f"I/O error: {error}")
 
     except ValidationError as error:
@@ -299,7 +294,3 @@ def main():
 
     except ValueError as error:
         print(f"Value error: {error}")
-
-
-if __name__ == "__main__":
-    main()
