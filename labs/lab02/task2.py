@@ -10,7 +10,6 @@ logging.basicConfig(
     format="[%(levelname)s] %(message)s",
 )
 
-# Виправлення для ruff (LOG015): створення власного логера замість глобального logging
 logger = logging.getLogger(__name__)
 
 PATTERNS = {
@@ -146,7 +145,6 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # Використання logger.info замість logging.info
     logger.info(f"Scanning directory {args.scan_dir} for unmasked PII data...")
 
     files_scanned, findings = scan_directory(args.scan_dir)
@@ -157,7 +155,6 @@ def main():
     counter = count_findings(findings)
 
     if findings:
-        # Використання logger.warning замість logging.warning
         logger.warning("Unmasked PII found in plaintext logs!")
 
     prepared_findings = prepare_findings(findings, args.mask)
@@ -182,7 +179,6 @@ def main():
         prepared_findings,
     )
 
-    # Використання logger.info замість logging.info
     logger.info(f"Sanitized report saved to {args.out_json}")
 
 
