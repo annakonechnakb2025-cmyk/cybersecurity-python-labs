@@ -23,7 +23,7 @@ def fetch_response(cve_id: str) -> dict:
         NVD_API_URL,
         params={"cveId": cve_id},
         headers=build_headers(),
-        timeout=(3.05, 10),
+        timeout=(3.05, 50),
         allow_redirects=False,
     )
 

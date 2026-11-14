@@ -52,10 +52,6 @@ def main(argv: list[str] | None = None) -> int:
         record = extract_record(payload, args.cve)
         report = build_report(record, args.cve, VARIANT_NUMBER)
 
-    except (FileNotFoundError, PermissionError, OSError):
-        print("Error: cannot read input file", file=sys.stderr)
-        return 1
-
     except json.JSONDecodeError:
         print("Error: invalid JSON response", file=sys.stderr)
         return 1
@@ -75,6 +71,13 @@ def main(argv: list[str] | None = None) -> int:
 
     except requests.exceptions.RequestException:
         print("Error: NVD request failed", file=sys.stderr)
+        return 1
+
+    except OSError as error:
+        if args.input:
+            print("Error: cannot read input file", file=sys.stderr)
+        else:
+            print(f"Error: network or system failure: {error}", file=sys.stderr)
         return 1
 
     except ValueError as error:

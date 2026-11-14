@@ -48,7 +48,7 @@ def test_fetch_response(monkeypatch):
         assert url == ("https://services.nvd.nist.gov/rest/json/cves/2.0")
         assert kwargs["params"] == {"cveId": CVE_ID}
         assert kwargs["headers"]["Accept"] == "application/json"
-        assert kwargs["timeout"] == (3.05, 10)
+        assert kwargs["timeout"] == (3.05, 50)
         assert kwargs["allow_redirects"] is False
 
         return FakeResponse()
